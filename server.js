@@ -22,11 +22,11 @@ app.post("/api/generate-game", async (req, res) => {
           },
           {
             role: "user",
-            content: "اصنع لي لعبة HTML مضحكة وسخيفة، مع تعليمات داخل اللعبة.",
+            content: "اصنع لي لعبة HTML مضحكة وسخيفة تعمل مباشرة داخل المتصفح. أرسل فقط الكود الكامل داخل وسم <html> بدون شرح أو نص إضافي.",
           },
         ],
         temperature: 1.3,
-        max_tokens: 800,
+        max_tokens: 1000,
       },
       {
         headers: {
