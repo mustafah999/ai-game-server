@@ -1,4 +1,3 @@
-
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
@@ -7,40 +6,38 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const OPENAI_API_KEY = "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";
+// 🔑 مفتاح Gemini
+const GEMINI_API_KEY = "AIzaSyCGxVLb5S2C6CcCbbYAvkmhvVa_CREYOcc";
 
 app.post("/api/generate-game", async (req, res) => {
   try {
-    const response = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
+    const geminiRes = await axios.post(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
       {
-        model: "gpt-4",
-        messages: [
+        contents: [
           {
-            role: "system",
-            content: "أنت مولد ألعاب HTML سخيفة ومضحكة.",
-          },
-          {
-            role: "user",
-            content: "اصنع لي لعبة HTML مضحكة وسخيفة تعمل مباشرة داخل المتصفح. أرسل فقط الكود الكامل داخل وسم <html> بدون شرح أو نص إضافي.",
+            parts: [
+              {
+                text:
+                  "اصنع لي لعبة HTML مضحكة وسخيفة تعمل داخل المتصفح. أرسل فقط الكود الكامل داخل وسم <html> بدون شرح أو نص إضافي.",
+              },
+            ],
           },
         ],
-        temperature: 1.3,
-        max_tokens: 1000,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${OPENAI_API_KEY}`,
-          "Content-Type": "application/json",
-        },
       }
     );
 
-    const gameHtml = response.data.choices[0].message.content;
+    // نأخذ النص المولد (code)
+    const gameHtml = geminiRes.data.candidates[0]?.content?.parts[0]?.text;
+
+    if (!gameHtml || !gameHtml.includes("<html")) {
+      return res.status(400).send({ error: "الرد غير صالح أو فارغ من Gemini" });
+    }
+
     res.send({ html: gameHtml });
   } catch (error) {
     console.error(error.response?.data || error.message);
-    res.status(500).send({ error: "فشل توليد اللعبة من OpenAI" });
+    res.status(500).send({ error: "فشل توليد اللعبة من Gemini API" });
   }
 });
 
